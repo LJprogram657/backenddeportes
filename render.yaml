@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: sistema-deportivo-backend
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn sistema_deportivo.wsgi:application"
+    envVars:
+      - key: DEBUG
+        value: False
+      - key: SECRET_KEY
+        generateValue: true
+      - key: WEB_CONCURRENCY
+        value: 4
