@@ -54,16 +54,20 @@ MIDDLEWARE = [
 ]
 
 # CORS settings
-# CORS Configuration
+FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
+
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
 else:
-    CORS_ALLOWED_ORIGINS = [
-        "https://tu-app.vercel.app",  # Reemplazar con tu dominio de Vercel
-        "http://localhost:3000",     # Para desarrollo local
-    ]
+    CORS_ALLOWED_ORIGINS = [FRONTEND_URL]
+
 CORS_ALLOW_CREDENTIALS = True
 
+# CSRF (evita 403 en POST/PUT desde el frontend)
+CSRF_TRUSTED_ORIGINS = [
+    FRONTEND_URL.rstrip('/'),
+    'https://*.onrender.com',
+]
 # REST Framework settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -109,13 +113,15 @@ WSGI_APPLICATION = 'sistema_deportivo.wsgi.application'
 
 # Database Configuration
 if os.environ.get('DATABASE_URL'):
-    # Producción con PostgreSQL
     import dj_database_url
     DATABASES = {
-        'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
+        'default': dj_database_url.parse(
+            os.environ['DATABASE_URL'],  # ej: postgres://user:pass@host:port/defaultdb?sslmode=require
+            conn_max_age=600,
+            ssl_require=True
+        )
     }
 else:
-    # Desarrollo con SQLite
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
