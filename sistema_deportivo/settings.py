@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 import os
+from urllib.parse import urlparse
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -55,16 +56,30 @@ MIDDLEWARE = [
 
 # CORS settings
 FRONTEND_URL = os.getenv("FRONTEND_URL", "").strip()
+RENDER_EXTERNAL_URL = os.getenv("RENDER_EXTERNAL_URL", "").strip()
 
-CORS_ALLOWED_ORIGINS = [
+# Hosts permitidos (Render agrega RENDER_EXTERNAL_URL automáticamente)
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    ".onrender.com",
+    ".vercel.app",
+]
+if RENDER_EXTERNAL_URL:
+    ALLOWED_HOSTS.append(urlparse(RENDER_EXTERNAL_URL).hostname)
+
+# CORS/CSRF
+CORS_ALLOWED_ORIGINS = [u for u in [
     FRONTEND_URL,
     "http://localhost:3000",
-]
+    "https://localhost:3000",
+] if u]
 
-CSRF_TRUSTED_ORIGINS = [
+CSRF_TRUSTED_ORIGINS = [u for u in [
     FRONTEND_URL,
     "http://localhost:3000",
-]
+    "https://localhost:3000",
+] if u]
 
 CORS_ALLOW_CREDENTIALS = True
 
